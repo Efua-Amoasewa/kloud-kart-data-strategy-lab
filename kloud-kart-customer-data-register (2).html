@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kloud Kart · Customer Data Register</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#eef1ee; --surface:#fbfcfa; --sunk:#e4e9e5; --ink:#13261f; --muted:#52615a; --line:#d0d8d2;
+  --head:#13261f; --head-ink:#eef1ee; --head-muted:#a9b8b0;
+  --accent:#2c5d86; --accent-ink:#ffffff; --calm:#2c5d86; --calm-bg:#dde8f1;
+  --warn:#9a4a0c; --warn-bg:#f6e3d1; --late:#93301d; --late-bg:#f5d9d1;
+  --focus:#2c5d86;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#0f1a16; --surface:#16241f; --sunk:#1c2d27; --ink:#e3ebe6; --muted:#9daca4; --line:#2c3f37;
+    --head:#0a1310; --head-ink:#e3ebe6; --head-muted:#8c9b93;
+    --accent:#8ab6dc; --accent-ink:#0b1a24; --calm:#8ab6dc; --calm-bg:#1a2c3b;
+    --warn:#f2a964; --warn-bg:#382816; --late:#f2907b; --late-bg:#3a1e18; --focus:#8ab6dc;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#0f1a16; --surface:#16241f; --sunk:#1c2d27; --ink:#e3ebe6; --muted:#9daca4; --line:#2c3f37;
+  --head:#0a1310; --head-ink:#e3ebe6; --head-muted:#8c9b93;
+  --accent:#8ab6dc; --accent-ink:#0b1a24; --calm:#8ab6dc; --calm-bg:#1a2c3b;
+  --warn:#f2a964; --warn-bg:#382816; --late:#f2907b; --late-bg:#3a1e18; --focus:#8ab6dc;
+}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.5}
+h1,h2,h3{font-family:"Space Grotesk","Instrument Sans",system-ui,sans-serif;margin:0;line-height:1.15}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+
+header.top{background:var(--head);color:var(--head-ink)}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;padding-top:28px;padding-bottom:0}
+.brand h1{font-size:28px;font-weight:600}
+.brand p{margin:4px 0 0;color:var(--head-muted);font-size:15px}
+.tabs{display:flex;gap:4px}
+.tabs button{background:transparent;border:0;color:var(--head-muted);padding:12px 18px;border-radius:10px 10px 0 0;cursor:pointer;font-weight:600}
+.tabs button[aria-selected="true"]{background:var(--bg);color:var(--ink)}
+.stats{display:flex;flex-wrap:wrap;gap:32px;padding:20px 0 24px;width:100%;order:3}
+.stat b{display:block;font-family:"Space Grotesk",sans-serif;font-size:24px;font-weight:600;color:var(--head-ink)}
+.stat span{color:var(--head-muted);font-size:14px}
+
+.notice{margin:16px 0 0;padding:10px 14px;border-radius:10px;background:var(--sunk);color:var(--muted);font-size:14px}
+main{padding:24px 0 64px}
+.intro{color:var(--muted);max-width:68ch;margin:0 0 20px}
+
+.btn{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--surface);padding:9px 16px;border-radius:10px;cursor:pointer;font-weight:600}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.quiet{background:transparent}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.danger{color:var(--late)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+
+.split{display:grid;grid-template-columns:300px 1fr;gap:24px;align-items:start}
+@media (max-width:860px){.split{grid-template-columns:1fr}}
+.list{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.item{display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;width:100%;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:var(--surface);cursor:pointer}
+.item[aria-current="true"]{border-color:var(--accent);box-shadow:inset 4px 0 0 var(--accent)}
+.item .ref{font-weight:600}
+.item small{display:block;color:var(--muted);font-size:13px}
+.chip{flex:none;font-size:13px;font-weight:600;padding:3px 10px;border-radius:999px;background:var(--calm-bg);color:var(--calm);white-space:nowrap}
+.chip.warn{background:var(--warn-bg);color:var(--warn)}
+.chip.late{background:var(--late-bg);color:var(--late)}
+.chip.done{background:var(--sunk);color:var(--muted)}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:28px}
+.panel h2{font-size:26px;font-weight:600}
+.meta{color:var(--muted);margin:6px 0 0}
+
+.clock{display:grid;grid-template-columns:auto 1fr;gap:6px 28px;align-items:end;margin:28px 0 8px}
+.clock .days{font-family:"Space Grotesk",sans-serif;font-size:96px;font-weight:700;line-height:.9;letter-spacing:-2px;grid-row:span 2}
+.clock .days.warn{color:var(--warn)} .clock .days.late{color:var(--late)} .clock .days.calm{color:var(--calm)}
+.clock p{margin:0}
+.clock .what{font-size:20px;font-weight:600}
+.clock .when{color:var(--muted)}
+.bar{display:grid;grid-template-columns:repeat(90,1fr);gap:2px;margin:22px 0 4px;height:14px}
+.bar i{border-radius:2px;background:var(--sunk)}
+.bar i.used{background:var(--muted)}
+.bar i.today{background:var(--warn)}
+.barlabel{display:flex;justify-content:space-between;color:var(--muted);font-size:13px}
+
+.checks{margin-top:32px}
+.checks h3{font-size:20px;font-weight:600}
+.checks .sub{color:var(--muted);margin:4px 0 14px}
+.by{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 14px}
+.by label{color:var(--muted);font-size:14px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:720px}
+th{text-align:left;font-size:13px;color:var(--muted);font-weight:600;padding:8px 10px;border-bottom:2px solid var(--line)}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+td .place{font-weight:600}
+td small{display:block;color:var(--muted)}
+input[type=text],input[type=date],select,textarea{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:8px;padding:7px 10px}
+select.unset{border-color:var(--warn);background:var(--warn-bg)}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.actions p{margin:0;color:var(--muted)}
+.closed{margin-top:24px;padding:14px 18px;border-radius:12px;background:var(--calm-bg);color:var(--calm);font-weight:600}
+
+.empty{text-align:left;padding:40px;border:2px dashed var(--line);border-radius:16px;background:var(--surface)}
+.empty h2{font-size:24px;margin-bottom:8px}
+.empty p{color:var(--muted);max-width:60ch}
+
+.places{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;margin-top:18px}
+.place-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.place-card.unconfirmed{border-style:dashed;border-color:var(--warn)}
+.place-card header{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.place-card h3{font-size:18px;font-weight:600}
+.place-card .kind{color:var(--muted);font-size:14px}
+.place-card dl{display:grid;grid-template-columns:110px 1fr;gap:4px 12px;margin:0;font-size:14px}
+.place-card dt{color:var(--muted)}
+.place-card dd{margin:0}
+
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--surface);color:var(--ink);padding:0;width:min(560px,94vw)}
+dialog::backdrop{background:rgba(8,16,13,.55)}
+dialog form{padding:26px;display:flex;flex-direction:column;gap:14px}
+dialog h2{font-size:22px}
+.field label{display:block;font-weight:600;font-size:14px;margin-bottom:4px}
+.field .hint{font-size:13px;color:var(--muted);margin:4px 0 0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.two{grid-template-columns:1fr}}
+.dlg-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:6px}
+textarea.out{min-height:260px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--head);color:var(--head-ink);padding:10px 18px;border-radius:10px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <h1>Customer Data Register</h1>
+      <p>Kloud Kart · where customer data lives, and proof we deleted it on time</p>
+    </div>
+    <div class="tabs" role="tablist" id="tabs">
+      <button role="tab" id="tab-requests" aria-selected="true" data-tab="requests">Requests</button>
+      <button role="tab" id="tab-register" aria-selected="false" data-tab="register">Register</button>
+    </div>
+    <div class="stats" id="stats" aria-live="polite"></div>
+  </div>
+</header>
+<main class="wrap">
+  <div id="note"></div>
+  <div id="app"><p class="intro">Loading the register…</p></div>
+</main>
+
+<dialog id="dlg-request"><form method="dialog" id="form-request">
+  <h2 id="req-title">New request</h2>
+  <div class="field"><label for="r-ref">Customer or case reference</label>
+    <input type="text" id="r-ref" required maxlength="60" placeholder="e.g. DPC case 2026-14 or account 48213">
+    <p class="hint">Use an account or case number. Don’t type the customer’s name or phone number here.</p></div>
+  <div class="field"><label for="r-kind">Type of request</label>
+    <select id="r-kind">
+      <option>Data Protection Commission complaint</option>
+      <option>Customer asked to be deleted</option>
+      <option>Customer asked for a copy of their data</option>
+    </select></div>
+  <div class="two">
+    <div class="field"><label for="r-received">Received on</label><input type="date" id="r-received" required></div>
+    <div class="field"><label for="r-due">Respond by</label><input type="date" id="r-due" required>
+      <p class="hint">Set 90 days after receipt. Change it if legal advice says otherwise.</p></div>
+  </div>
+  <div class="field"><label for="r-summary">What it’s about (optional)</label>
+    <textarea id="r-summary" rows="2" maxlength="300"></textarea></div>
+  <div class="dlg-actions"><button class="btn quiet" value="cancel" formnovalidate>Cancel</button><button class="btn primary" value="save" id="r-save">Add request</button></div>
+</form></dialog>
+
+<dialog id="dlg-place"><form method="dialog" id="form-place">
+  <h2 id="place-title">Add a place</h2>
+  <div class="field"><label for="p-name">Name</label><input type="text" id="p-name" required maxlength="80" placeholder="e.g. Marketing customer list, March export"></div>
+  <div class="two">
+    <div class="field"><label for="p-kind">Kind</label><select id="p-kind">
+      <option>Database</option><option>Server copy</option><option>Data warehouse</option><option>Spreadsheet</option><option>CSV export</option><option>Email attachments</option><option>Backup</option><option>Other</option></select></div>
+    <div class="field"><label for="p-owner">Owner</label><input type="text" id="p-owner" maxlength="60" placeholder="Team or person"></div>
+  </div>
+  <div class="field"><label for="p-holds">Customer details it holds</label><input type="text" id="p-holds" maxlength="140" placeholder="e.g. names, phone numbers, delivery addresses"></div>
+  <div class="field"><label for="p-access">Who can open it</label><input type="text" id="p-access" maxlength="140"></div>
+  <div class="two">
+    <div class="field"><label for="p-keep">Kept until</label><input type="text" id="p-keep" maxlength="80" placeholder="e.g. 12 months, then deleted"></div>
+    <div class="field"><label for="p-how">How a customer is removed</label><input type="text" id="p-how" maxlength="140"></div>
+  </div>
+  <label class="row"><input type="checkbox" id="p-confirmed"> The owner has confirmed these details</label>
+  <div class="dlg-actions"><button class="btn quiet" value="cancel" formnovalidate>Cancel</button><button class="btn primary" value="save" id="p-save">Add place</button></div>
+</form></dialog>
+
+<dialog id="dlg-out"><form method="dialog">
+  <h2 id="out-title">Record of action</h2>
+  <p class="meta" id="out-hint">Download it, or copy the text into your response to the Commission.</p>
+  <label class="sr" for="out-text">Document text</label>
+  <textarea class="out" id="out-text" readonly></textarea>
+  <div class="dlg-actions"><button class="btn quiet" value="close">Close</button><button class="btn" type="button" id="out-copy">Copy text</button><button class="btn primary" type="button" id="out-dl">Download</button></div>
+</form></dialog>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+const $=(s,el=document)=>el.querySelector(s);
+const pad=n=>String(n).padStart(2,"0");
+function today(){const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());}
+function addDays(s,n){const p=s.split("-").map(Number);return new Date(Date.UTC(p[0],p[1]-1,p[2]+n)).toISOString().slice(0,10);}
+function daysBetween(a,b){return Math.round((Date.parse(b)-Date.parse(a))/86400000);}
+function fmt(s){if(!s)return "—";const d=new Date(s+"T00:00:00Z");if(isNaN(d))return s;return d.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric",timeZone:"UTC"});}
+function newId(p){let r="";const c="abcdefghijklmnopqrstuvwxyz0123456789";for(let i=0;i<14;i++)r+=c[Math.floor(Math.random()*c.length)];return p+r;}
+function el(tag,attrs,...kids){const e=document.createElement(tag);if(attrs)for(const k in attrs){const v=attrs[k];if(v==null||v===false)continue;if(k==="class")e.className=v;else if(k==="text")e.textContent=v;else if(k.startsWith("on"))e.addEventListener(k.slice(2),v);else e.setAttribute(k,v===true?"":v);}for(const k of kids){if(k==null||k===false)continue;e.append(k.nodeType?k:document.createTextNode(String(k)));}return e;}
+function str(v,max){return typeof v==="string"?v.slice(0,max||500):"";}
+
+const STATES=[["","Not checked yet"],["removed","Removed"],["none","Not held there"],["expires","Expires on schedule (e.g. backups)"],["kept","Kept for a legal reason"]];
+const STATE_LABEL={removed:"Removed",none:"Not held there",expires:"Expires on schedule",kept:"Kept for a legal reason","":"Not checked yet"};
+const NEEDS_NOTE={kept:true,expires:true};
+function makeSnapshot(r){return {takenOn:today(),registerCount:S.copies.length,unconfirmed:S.copies.filter(c=>!c.confirmed).map(c=>c.name),places:S.copies.map(c=>{const k=r.checks[c.id]||{};return {name:c.name,owner:c.owner,state:k.state||"",date:k.date||"",by:k.by||"",note:k.note||""};})};}
+function cleanSnap(d){if(!d||typeof d!=="object"||!Array.isArray(d.places))return null;return {takenOn:str(d.takenOn,10),registerCount:typeof d.registerCount==="number"?d.registerCount:d.places.length,unconfirmed:Array.isArray(d.unconfirmed)?d.unconfirmed.map(x=>str(x,80)).slice(0,500):[],places:d.places.slice(0,500).map(p=>{p=p||{};return {name:str(p.name,80),owner:str(p.owner,60),state:["removed","none","kept","expires"].includes(p.state)?p.state:"",date:str(p.date,10),by:str(p.by,60),note:str(p.note,200)};})};}
+
+const S={copies:[],requests:[],mode:"loading",tab:"requests",selected:null,loaded:{copies:false,requests:false},stale:false};
+let db=null, downloads=null;
+const LS="kk-customer-data-register";
+let recordedBy="";
+try{recordedBy=localStorage.getItem(LS+":by")||"";}catch(e){}
+
+/* ---------- data layer ---------- */
+function cleanCopy(id,d){d=d||{};return {id,name:str(d.name,80)||"Unnamed place",kind:str(d.kind,40),owner:str(d.owner,60),holds:str(d.holds,140),access:str(d.access,140),keep:str(d.keep,80),how:str(d.how,140),confirmed:d.confirmed===true,createdAt:typeof d.createdAt==="number"?d.createdAt:0};}
+function cleanReq(id,d){d=d||{};const checks={};if(d.checks&&typeof d.checks==="object")for(const k in d.checks){const c=d.checks[k]||{};checks[k]={state:["removed","none","kept","expires"].includes(c.state)?c.state:"",date:str(c.date,10),by:str(c.by,60),note:str(c.note,200)};}
+  return {id,ref:str(d.ref,60)||"Untitled",kind:str(d.kind,60),received:str(d.received,10),due:str(d.due,10),summary:str(d.summary,300),checks,closedAt:str(d.closedAt,10),snapshot:cleanSnap(d.snapshot),createdAt:typeof d.createdAt==="number"?d.createdAt:0};}
+function strip(o){const c=Object.assign({},o);delete c.id;return c;}
+
+function loadLocal(){try{const raw=localStorage.getItem(LS);if(raw){const j=JSON.parse(raw);S.copies=(j.copies||[]).map(c=>cleanCopy(c.id,c));S.requests=(j.requests||[]).map(r=>cleanReq(r.id,r));}}catch(e){}}
+function saveLocal(){try{localStorage.setItem(LS,JSON.stringify({copies:S.copies,requests:S.requests}));}catch(e){toast("Couldn’t save in this browser.");}}
+
+const chains={};
+function queue(key,fn){const p=(chains[key]||Promise.resolve()).then(fn,fn);chains[key]=p.catch(()=>{});return p;}
+
+async function putCopy(c){
+  if(S.mode==="db"){return queue("c/"+c.id,()=>db.collection("copies").doc(c.id).set(strip(c))).catch(e=>toast(writeErr(e)));}
+  const i=S.copies.findIndex(x=>x.id===c.id);if(i<0)S.copies.push(c);else S.copies[i]=c;saveLocal();render();
+}
+async function dropCopy(id){
+  if(S.mode==="db"){return queue("c/"+id,()=>db.collection("copies").doc(id).delete()).catch(e=>toast(writeErr(e)));}
+  S.copies=S.copies.filter(x=>x.id!==id);saveLocal();render();
+}
+async function putReq(r){
+  if(S.mode==="db"){
+    const i=S.requests.findIndex(x=>x.id===r.id);if(i<0)S.requests.push(r);else S.requests[i]=r;render();
+    return queue("r/"+r.id,()=>db.collection("requests").doc(r.id).set(strip(r))).catch(e=>toast(writeErr(e)));}
+  const i=S.requests.findIndex(x=>x.id===r.id);if(i<0)S.requests.push(r);else S.requests[i]=r;saveLocal();render();
+}
+async function dropReq(id){
+  if(S.mode==="db"){return queue("r/"+id,()=>db.collection("requests").doc(id).delete()).catch(e=>toast(writeErr(e)));}
+  S.requests=S.requests.filter(x=>x.id!==id);saveLocal();render();
+}
+function writeErr(e){const c=e&&e.code;if(c==="permission_denied"||c==="not_granted")return "You can view this register but not change it.";if(c==="quota_exceeded")return "The register is full. Remove old closed requests first.";return "That change didn’t save. Check your connection and try again.";}
+
+function startLocal(msg){S.mode="local";loadLocal();setNote(msg);render();}
+function setNote(msg){const n=$("#note");n.textContent="";if(msg)n.append(el("p",{class:"notice",text:msg}));}
+
+async function init(){
+  render();
+  const c=window.claude;
+  if(!c||typeof c.use!=="function"){startLocal("Saved in this browser only. Open the register from its Claude link to share it with your team.");return;}
+  c.use("downloads").then(d=>{downloads=d;}).catch(()=>{});
+  let d=null;try{d=await c.use("db");}catch(e){d=null;}
+  if(!d){startLocal("Saved in this browser only. Sign in through the Claude link to keep a shared register.");return;}
+  db=d;S.mode="db";
+  const timer=setTimeout(()=>{if(!S.loaded.copies||!S.loaded.requests){S.stale=true;setNote("The shared register can’t be reached yet. What you see may be out of date.");render();}},10000);
+  const done=()=>{if(S.loaded.copies&&S.loaded.requests){clearTimeout(timer);if(S.stale){S.stale=false;setNote("");}}};
+  db.collection("copies").orderBy("createdAt").onSnapshot(snap=>{S.copies=snap.docs.map(x=>cleanCopy(x.id,x.data()));if(!snap.metadata.fromCache)S.loaded.copies=true;done();render();},()=>{clearTimeout(timer);setNote("The shared register stopped updating. Reload the page to reconnect.");});
+  db.collection("requests").orderBy("createdAt").onSnapshot(snap=>{
+    const incoming=snap.docs.map(x=>cleanReq(x.id,x.data()));
+    S.requests=incoming;if(!snap.metadata.fromCache)S.loaded.requests=true;done();render();
+  },()=>{clearTimeout(timer);setNote("The shared register stopped updating. Reload the page to reconnect.");});
+}
+
+/* ---------- derived ---------- */
+function openChecks(r){return S.copies.filter(c=>!(r.checks[c.id]&&r.checks[c.id].state));}
+function daysLeft(r){return daysBetween(today(),r.due);}
+function urgency(r){if(r.closedAt)return "done";const d=daysLeft(r);if(d<0)return "late";if(d<=14)return "warn";return "calm";}
+function chipText(r){if(r.closedAt)return "Closed";const d=daysLeft(r);if(d<0)return Math.abs(d)+(Math.abs(d)===1?" day late":" days late");if(d===0)return "Due today";return d+(d===1?" day left":" days left");}
+function sortedReqs(){return S.requests.slice().sort((a,b)=>{if(!!a.closedAt!==!!b.closedAt)return a.closedAt?1:-1;return (a.due||"").localeCompare(b.due||"");});}
+
+/* ---------- render ---------- */
+function render(){
+  renderStats();
+  document.querySelectorAll("#tabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.tab===S.tab)));
+  const app=$("#app");app.textContent="";
+  if(S.mode==="loading"){app.append(el("p",{class:"intro",text:"Loading the register…"}));return;}
+  app.append(S.tab==="requests"?renderRequests():renderRegister());
+}
+function renderStats(){
+  const st=$("#stats");st.textContent="";
+  const open=S.requests.filter(r=>!r.closedAt);
+  const next=open.slice().sort((a,b)=>(a.due||"").localeCompare(b.due||""))[0];
+  const unconf=S.copies.filter(c=>!c.confirmed).length;
+  const box=(big,small)=>el("div",{class:"stat"},el("b",{text:big}),el("span",{text:small}));
+  st.append(
+    box(next?chipText(next):"None open",next?"next deadline · "+next.ref:"no deadlines running"),
+    box(String(open.length),open.length===1?"open request":"open requests"),
+    box(String(S.copies.length),S.copies.length===1?"place holds customer data":"places hold customer data"),
+    box(String(unconf),unconf===1?"place not yet confirmed by its owner":"places not yet confirmed by their owners")
+  );
+}
+
+function renderRequests(){
+  const frag=document.createDocumentFragment();
+  if(!S.requests.length){
+    frag.append(el("div",{class:"empty"},
+      el("h2",{text:"No requests yet"}),
+      el("p",{text:"Start with the Data Protection Commission complaint: its 90 days are already running. Each request gets a countdown and a checklist of every place in the register, and it can only be closed when every place has been checked."}),
+      el("div",{class:"row"},el("button",{class:"btn primary",onclick:()=>openReqDialog()},"Add the complaint"),
+        !S.copies.length?el("button",{class:"btn",onclick:()=>{S.tab="register";render();}},"Fill in the register first"):null)));
+    return frag;
+  }
+  const list=sortedReqs();
+  if(!S.selected||!S.requests.some(r=>r.id===S.selected))S.selected=list[0].id;
+  const side=el("div",null,el("button",{class:"btn primary",onclick:()=>openReqDialog()},"New request"));
+  const ul=el("div",{class:"list",role:"list"});
+  for(const r of list){
+    ul.append(el("button",{class:"item",role:"listitem","aria-current":String(r.id===S.selected),onclick:()=>{S.selected=r.id;render();}},
+      el("span",null,el("span",{class:"ref",text:r.ref}),el("small",{text:r.kind})),
+      el("span",{class:"chip "+urgency(r),text:chipText(r)})));
+  }
+  side.append(ul);
+  const r=S.requests.find(x=>x.id===S.selected);
+  frag.append(el("div",{class:"split"},side,renderDetail(r)));
+  return frag;
+}
+
+function renderDetail(r){
+  const p=el("section",{class:"panel","aria-labelledby":"det-h"});
+  p.append(el("h2",{id:"det-h",text:r.ref}),el("p",{class:"meta",text:r.kind+" · received "+fmt(r.received)+(r.summary?" · "+r.summary:"")}));
+
+  const total=Math.max(1,daysBetween(r.received,r.due));
+  const used=Math.min(total,Math.max(0,daysBetween(r.received,r.closedAt||today())));
+  const left=daysLeft(r);const u=urgency(r);
+  const clock=el("div",{class:"clock"});
+  if(r.closedAt){
+    const spare=daysBetween(r.closedAt,r.due);
+    clock.append(el("div",{class:"days calm",text:String(Math.abs(spare))}),
+      el("p",{class:"what",text:spare>=0?(spare===1?"day to spare":"days to spare"):(spare===-1?"day late":"days late")}),
+      el("p",{class:"when",text:"Closed on "+fmt(r.closedAt)+". Deadline was "+fmt(r.due)+"."}));
+  }else{
+    clock.append(el("div",{class:"days "+u,text:String(Math.abs(left))}),
+      el("p",{class:"what",text:left<0?(left===-1?"day past the deadline":"days past the deadline"):(left===1?"day left to respond":"days left to respond")}),
+      el("p",{class:"when",text:"Respond by "+fmt(r.due)+"."}));
+  }
+  p.append(clock);
+  const segs=Math.min(total,90);const bar=el("div",{class:"bar","aria-hidden":"true",style:"grid-template-columns:repeat("+segs+",1fr)"});
+  const usedSeg=Math.round(used/total*segs);
+  for(let i=0;i<segs;i++)bar.append(el("i",{class:i<usedSeg-1?"used":(i===usedSeg-1&&!r.closedAt?"today":(i<usedSeg?"used":""))}));
+  p.append(bar,el("div",{class:"barlabel"},el("span",{text:"Received "+fmt(r.received)}),el("span",{text:used+" of "+total+" days used"}),el("span",{text:"Due "+fmt(r.due)})));
+
+  const remaining=openChecks(r);
+  const ch=el("div",{class:"checks"});
+  ch.append(el("h3",{text:"Every place customer data is kept"}),
+    el("p",{class:"sub",text:(r.closedAt&&r.snapshot)?"Frozen when the request closed on "+fmt(r.snapshot.takenOn)+". Later changes to the register don’t affect this record.":(S.copies.length?"Record what happened in each place. The request can be closed once none are left unchecked.":"The register is empty, so there’s nothing to check yet.")}));
+  if(!S.copies.length&&!(r.closedAt&&r.snapshot)){ch.append(el("button",{class:"btn",onclick:()=>{S.tab="register";render();}},"Fill in the register"));p.append(ch);return p;}
+  const byIn=el("input",{type:"text",id:"by",value:recordedBy,maxlength:"60",placeholder:"Your name",style:"max-width:240px",oninput:e=>{recordedBy=e.target.value;try{localStorage.setItem(LS+":by",recordedBy);}catch(x){}}});
+  ch.append(el("div",{class:"by"},el("label",{for:"by",text:"Recorded by"}),byIn));
+  const snap=(r.closedAt&&r.snapshot)?r.snapshot:null;
+  const rowsList=snap?snap.places.map((p,i)=>({c:{id:"snap"+i,name:p.name,owner:p.owner,how:""},k:{state:p.state,date:p.date,by:p.by,note:p.note}})):S.copies.map(c=>({c,k:r.checks[c.id]||{state:"",date:"",by:"",note:""}}));
+  const tb=el("table");
+  tb.append(el("tr",null,el("th",{text:"Place"}),el("th",{text:"What happened"}),el("th",{text:"Date"}),el("th",{text:"Note"}),el("th",{text:"Recorded by"})));
+  for(const {c,k} of rowsList){
+    const sel=el("select",{class:k.state?"":"unset","aria-label":"What happened at "+c.name,disabled:r.closedAt?true:null,onchange:e=>{
+      const next=Object.assign({},r,{checks:Object.assign({},r.checks)});
+      const v=e.target.value;
+      next.checks[c.id]=Object.assign({},k,{state:v,date:v?(k.date||today()):"",by:v?(recordedBy||k.by):""});
+      putReq(next);}});
+    for(const [v,l] of STATES){const o=el("option",{value:v,text:l});if(v===k.state)o.selected=true;sel.append(o);}
+    const date=el("input",{type:"date",value:k.date,"aria-label":"Date for "+c.name,disabled:(!k.state||r.closedAt)?true:null,onchange:e=>{const next=Object.assign({},r,{checks:Object.assign({},r.checks)});next.checks[c.id]=Object.assign({},k,{date:e.target.value});putReq(next);}});
+    const note=el("input",{type:"text",value:k.note,maxlength:"200","aria-label":"Note for "+c.name,placeholder:k.state==="kept"?"Which law, and until when":(k.state==="expires"?"Expiry date, and how it’s kept out of use":""),disabled:r.closedAt?true:null,onchange:e=>{const next=Object.assign({},r,{checks:Object.assign({},r.checks)});next.checks[c.id]=Object.assign({},k,{note:e.target.value});putReq(next);}});
+    tb.append(el("tr",null,el("td",null,el("span",{class:"place",text:c.name}),el("small",{text:(c.owner||"No owner yet")+(c.how?" · "+c.how:"")})),el("td",null,sel),el("td",{style:"width:160px"},date),el("td",null,note),el("td",{style:"width:130px"},el("span",{text:k.by||"—"}))));
+  }
+  ch.append(el("div",{class:"scroll"},tb));
+  p.append(ch);
+
+  const kepts=S.copies.filter(c=>r.checks[c.id]&&NEEDS_NOTE[r.checks[c.id].state]&&!r.checks[c.id].note);
+  const acts=el("div",{class:"actions"});
+  if(r.closedAt){
+    p.append(el("p",{class:"closed",text:"Closed on "+fmt(r.closedAt)+". Every place was checked."}));
+    acts.append(el("div",{class:"row"},el("button",{class:"btn primary",onclick:()=>showEvidence(r)},"Download record of action"),el("button",{class:"btn quiet",onclick:()=>{putReq(Object.assign({},r,{closedAt:"",snapshot:null}));toast("Request reopened");}},"Reopen")),
+      el("button",{class:"btn quiet danger",onclick:()=>{if(confirm("Delete the request "+r.ref+" and its record? This can’t be undone.")){dropReq(r.id);S.selected=null;}}},"Delete request"));
+  }else{
+    const why=remaining.length?(remaining.length===1?"1 place still to check":remaining.length+" places still to check"):(kepts.length?"Add a note for each copy that is kept or expiring":"Every place has been checked");
+    acts.append(el("p",{text:why}),el("div",{class:"row"},
+      el("button",{class:"btn",onclick:()=>showEvidence(r)},"Preview record"),
+      el("button",{class:"btn primary",disabled:(remaining.length||kepts.length)?true:null,onclick:()=>{putReq(Object.assign({},r,{closedAt:today(),snapshot:makeSnapshot(r)}));toast("Request closed");}},"Close request"),
+      el("button",{class:"btn quiet",onclick:()=>openReqDialog(r)},"Edit"),
+      el("button",{class:"btn quiet danger",onclick:()=>{if(confirm("Delete the request "+r.ref+"? This can’t be undone.")){dropReq(r.id);S.selected=null;}}},"Delete")));
+  }
+  p.append(acts);
+  return p;
+}
+
+function renderRegister(){
+  const frag=document.createDocumentFragment();
+  if(!S.copies.length){
+    frag.append(el("div",{class:"empty"},
+      el("h2",{text:"Where does customer data live?"}),
+      el("p",{text:"List every database, spreadsheet, export, inbox and backup that holds customer details, and who owns it. Start from the places we already know about, then ask each owner to confirm."}),
+      el("div",{class:"row"},el("button",{class:"btn primary",onclick:addStarter},"Add the places we already know about"),el("button",{class:"btn",onclick:()=>openPlaceDialog()},"Add one place"))));
+    return frag;
+  }
+  const unconf=S.copies.filter(c=>!c.confirmed).length;
+  frag.append(el("p",{class:"intro",text:unconf?unconf+" of "+S.copies.length+" places still need their owner to confirm the details. Dashed cards are unconfirmed.":"Every place has been confirmed by its owner."}),
+    el("div",{class:"row"},el("button",{class:"btn primary",onclick:()=>openPlaceDialog()},"Add a place"),el("button",{class:"btn",onclick:downloadCsv},"Download register (CSV)")));
+  const g=el("div",{class:"places"});
+  for(const c of S.copies){
+    const dl=el("dl");
+    const add=(k,v)=>{dl.append(el("dt",{text:k}),el("dd",{text:v||"Not recorded yet"}));};
+    add("Owner",c.owner);add("Holds",c.holds);add("Who can open it",c.access);add("Kept until",c.keep);add("How to remove",c.how);
+    g.append(el("article",{class:"place-card"+(c.confirmed?"":" unconfirmed")},
+      el("header",null,el("div",null,el("h3",{text:c.name}),el("span",{class:"kind",text:c.kind})),el("span",{class:"chip "+(c.confirmed?"":"warn"),text:c.confirmed?"Confirmed":"Unconfirmed"})),
+      dl,
+      el("div",{class:"row"},
+        c.confirmed?null:el("button",{class:"btn",onclick:()=>putCopy(Object.assign({},c,{confirmed:true}))},"Mark confirmed"),
+        el("button",{class:"btn quiet",onclick:()=>openPlaceDialog(c)},"Edit"),
+        el("button",{class:"btn quiet danger",onclick:()=>{if(confirm("Remove "+c.name+" from the register?"))dropCopy(c.id);}},"Remove"))));
+  }
+  frag.append(g);
+  return frag;
+}
+
+/* ---------- starter list ---------- */
+async function addStarter(){
+  const t=Date.now();
+  const rows=[
+    ["Shop database","Database","Developer","Names, phone numbers, addresses, order history","Developer","While the account is open","Delete the account in the shop’s admin"],
+    ["Reporting copy on the second server","Server copy","Data Engineer (from Q1)","Full copy of the shop database","Data Engineer only","Mirrors the shop database","Follows the shop database automatically"],
+    ["Data warehouse","Data warehouse","Analytics Engineer (from Q2)","Orders and amounts only, no phone numbers","Operations and Finance","",""],
+    ["Marketing customer list exports","CSV export","Marketing","Names and phone numbers, about 300,000 people","",
+      "",""],
+    ["Monday report exports","CSV export","Operations","Orders, possibly customer names","Operations","",""],
+    ["Finance revenue spreadsheet","Spreadsheet","Finance","Orders, possibly customer names","Finance","",""],
+    ["Database backups","Backup","Developer","Full copies of the shop database","Developer","","Removed when old backups expire"],
+    ["Customer lists sent by email","Email attachments","All teams","Whatever was exported","Anyone who received them","",""]
+  ];
+  if(S.mode==="local"){
+    rows.forEach((r,i)=>S.copies.push(cleanCopy(newId("c"),{name:r[0],kind:r[1],owner:r[2],holds:r[3],access:r[4],keep:r[5],how:r[6],confirmed:false,createdAt:t+i})));
+    saveLocal();render();toast("8 places added. Ask each owner to confirm.");return;
+  }
+  for(let i=0;i<rows.length;i++){const r=rows[i];await putCopy(cleanCopy(newId("c"),{name:r[0],kind:r[1],owner:r[2],holds:r[3],access:r[4],keep:r[5],how:r[6],confirmed:false,createdAt:t+i}));}
+  toast("8 places added. Ask each owner to confirm.");
+}
+
+/* ---------- dialogs ---------- */
+let editingReq=null, dueTouched=false;
+function openReqDialog(r){
+  editingReq=r||null;dueTouched=!!r;
+  $("#req-title").textContent=r?"Edit request":"New request";$("#r-save").textContent=r?"Save changes":"Add request";
+  $("#r-ref").value=r?r.ref:"";$("#r-kind").value=r?r.kind:"Data Protection Commission complaint";
+  const rec=r?r.received:today();$("#r-received").value=rec;$("#r-due").value=r?r.due:addDays(rec,90);
+  $("#r-summary").value=r?r.summary:"";
+  $("#dlg-request").showModal();
+}
+$("#r-due").addEventListener("input",()=>{dueTouched=true;});
+$("#r-received").addEventListener("change",e=>{if(!dueTouched&&e.target.value)$("#r-due").value=addDays(e.target.value,90);});
+$("#dlg-request").addEventListener("close",()=>{
+  if($("#dlg-request").returnValue!=="save")return;
+  const ref=$("#r-ref").value.trim();if(!ref)return;
+  const base=editingReq||{id:newId("r"),checks:{},closedAt:"",createdAt:Date.now()};
+  const r=cleanReq(base.id,Object.assign({},base,{ref,kind:$("#r-kind").value,received:$("#r-received").value,due:$("#r-due").value,summary:$("#r-summary").value.trim()}));
+  S.selected=r.id;S.tab="requests";putReq(r);toast(editingReq?"Request saved":"Request added");
+});
+
+let editingPlace=null;
+function openPlaceDialog(c){
+  editingPlace=c||null;
+  $("#place-title").textContent=c?"Edit place":"Add a place";$("#p-save").textContent=c?"Save changes":"Add place";
+  $("#p-name").value=c?c.name:"";$("#p-kind").value=c&&c.kind?c.kind:"Spreadsheet";$("#p-owner").value=c?c.owner:"";
+  $("#p-holds").value=c?c.holds:"";$("#p-access").value=c?c.access:"";$("#p-keep").value=c?c.keep:"";$("#p-how").value=c?c.how:"";
+  $("#p-confirmed").checked=c?c.confirmed:false;
+  $("#dlg-place").showModal();
+}
+$("#dlg-place").addEventListener("close",()=>{
+  if($("#dlg-place").returnValue!=="save")return;
+  const name=$("#p-name").value.trim();if(!name)return;
+  const base=editingPlace||{id:newId("c"),createdAt:Date.now()};
+  putCopy(cleanCopy(base.id,Object.assign({},base,{name,kind:$("#p-kind").value,owner:$("#p-owner").value.trim(),holds:$("#p-holds").value.trim(),access:$("#p-access").value.trim(),keep:$("#p-keep").value.trim(),how:$("#p-how").value.trim(),confirmed:$("#p-confirmed").checked})));
+  toast(editingPlace?"Place saved":"Place added");
+});
+
+/* ---------- outputs ---------- */
+let outFile={name:"",data:""};
+function cell(s){return String(s||"—").replace(/\|/g,"/").replace(/\n/g," ");}
+function evidenceText(r){
+  const lines=[];
+  lines.push("# Kloud Kart: record of action","");
+  lines.push("**Request:** "+r.ref+" ("+r.kind+")");
+  lines.push("**Received:** "+fmt(r.received)+"  ");
+  lines.push("**Respond by:** "+fmt(r.due)+"  ");
+  if(r.closedAt){const spare=daysBetween(r.closedAt,r.due);lines.push("**Closed:** "+fmt(r.closedAt)+(spare>=0?" ("+spare+" days before the deadline)":" ("+Math.abs(spare)+" days after the deadline)"));}
+  else lines.push("**Status:** Open, "+openChecks(r).length+" of "+S.copies.length+" places not yet checked");
+  if(r.summary)lines.push("","**About:** "+r.summary);
+  lines.push("","## Every place we hold customer data, and what we did","");
+  lines.push("| Place | Owner | What we did | Date | Recorded by | Note |","|---|---|---|---|---|---|");
+  const snapE=(r.closedAt&&r.snapshot)?r.snapshot:null;
+  const rowsE=snapE?snapE.places.map(p=>({c:{name:p.name,owner:p.owner},k:p})):S.copies.map(c=>({c,k:r.checks[c.id]||{}}));
+  for(const {c,k} of rowsE){lines.push("| "+[cell(c.name),cell(c.owner),cell(STATE_LABEL[k.state||""]),cell(k.date?fmt(k.date):""),cell(k.by),cell(k.note)].join(" | ")+" |");}
+  const unconfNames=snapE?snapE.unconfirmed:S.copies.filter(c=>!c.confirmed).map(c=>c.name);
+  const count=snapE?snapE.registerCount:S.copies.length;
+  const asOf=snapE?snapE.takenOn:today();
+  lines.push("","The register listed "+count+" places holding customer data on "+fmt(asOf)+"."+(unconfNames.length?" "+unconfNames.length+" had not yet been confirmed by their owners: "+unconfNames.join(", ")+".":" All had been confirmed by their owners."));
+  lines.push("",snapE?"This record was frozen when the request closed on "+fmt(snapE.takenOn)+"; later changes to the register do not alter it. Downloaded on "+fmt(today())+".":"Prepared from the Kloud Kart Customer Data Register on "+fmt(today())+".");
+  return lines.join("\n");
+}
+function showEvidence(r){
+  outFile={name:"record-of-action-"+r.ref.replace(/[^A-Za-z0-9-]+/g,"-").replace(/^-|-$/g,"")+".md",data:evidenceText(r)};
+  $("#out-title").textContent="Record of action · "+r.ref;
+  $("#out-hint").textContent=r.closedAt?"Download it, or copy the text into your response to the Commission.":"This request is still open. The record will be complete once every place is checked.";
+  $("#out-text").value=outFile.data;$("#out-dl").hidden=!canDownload();
+  $("#dlg-out").showModal();
+}
+function csvCell(s){s=String(s==null?"":s);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}
+function downloadCsv(){
+  const rows=[["Place","Kind","Owner","Customer details held","Who can open it","Kept until","How a customer is removed","Confirmed by owner"]];
+  for(const c of S.copies)rows.push([c.name,c.kind,c.owner,c.holds,c.access,c.keep,c.how,c.confirmed?"Yes":"No"]);
+  const data=rows.map(r=>r.map(csvCell).join(",")).join("\r\n");
+  outFile={name:"customer-data-register-"+today()+".csv",data};
+  if(canDownload())doDownload();else{$("#out-title").textContent="Customer data register";$("#out-hint").textContent="Copy this into a spreadsheet.";$("#out-text").value=data;$("#out-dl").hidden=true;$("#dlg-out").showModal();}
+}
+function canDownload(){return !!downloads||!window.claude;}
+function blobSave(){try{const type=outFile.name.endsWith('.csv')?'text/csv':'text/markdown';const url=URL.createObjectURL(new Blob([outFile.data],{type:type+';charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=outFile.name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Downloaded');}catch(e){toast('Download didn’t work here. Use Copy text instead.');}}
+async function doDownload(){
+  if(!downloads){if(!window.claude)blobSave();return;}
+  try{await downloads.save({filename:outFile.name,data:outFile.data});toast("Downloaded");}
+  catch(e){const c=e&&e.code;if(c==="declined")return;if(c==="rate_limited"){toast("Another download is waiting for your answer.");return;}toast("Download isn’t available here. Use Copy text instead.");}
+}
+$("#out-dl").addEventListener("click",doDownload);
+$("#out-copy").addEventListener("click",async()=>{const t=$("#out-text");try{await navigator.clipboard.writeText(t.value);toast("Copied");}catch(e){t.select();toast("Text selected. Press Ctrl+C or ⌘C to copy.");}});
+
+let toastT=0;
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),2600);}
+
+document.querySelectorAll("#tabs button").forEach(b=>b.addEventListener("click",()=>{S.tab=b.dataset.tab;render();}));
+init();
+})();
+</script>
+</body>
+</html>
