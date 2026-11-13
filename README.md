@@ -22,7 +22,7 @@ This project is organized around a set of decision and planning documents:
 - [recommendations.md](./recommendations.md) — presents the proposed architecture and the recommended data strategy.
 - [roadmap.md](./roadmap.md) — outlines a 12-month delivery plan and measurable success criteria.
 - [improvement-beyond-brief.md](./improvement-beyond-brief.md) — explains the extra deliverable: a Customer Data Register used to track data copies, deletion obligations, and compliance evidence.
-- [kloud-kart-customer-data-register (2).html](./kloud-kart-customer-data-register%20(2).html) — a browser-based register for managing customer-data locations and deletion-request checklists.
+- [customer-data-register.html](./customer-data-register.html) — a browser-based register for managing customer-data locations and deletion-request checklists.
 - [decisions/](./decisions/) — architecture decision records (ADRs) covering the recommended foundations:
   - [ADR-001-read-replica.md](./decisions/ADR-001-read-replica.md)
   - [ADR-002-modest-warehouse.md](./decisions/ADR-002-modest-warehouse.md)
@@ -71,11 +71,12 @@ The strategy is guided by a few strong principles:
 1. [Situational-diagnosis.md](./Situational-diagnosis.md)
 2. [recommendations.md](./recommendations.md)
 3. [roadmap.md](./roadmap.md)
-4. [improvement-beyond-brief.md](./improvement-beyond-brief.md)
+4. [kloud-kart-board-presentation.pptx](./kloud-kart-board-presentation.pptx)
+5. [improvement-beyond-brief.md](./improvement-beyond-brief.md)
 
 ### Open the customer-data register
 
-Open [kloud-kart-customer-data-register (2).html](./kloud-kart-customer-data-register%20(2).html) in a browser to view and use the register for data-copy tracking and deletion-request handling.
+Open [customer-data-register.html](./customer-data-register.html) in a browser to view and use the register for data-copy tracking and deletion-request handling.
 
 ## Success criteria
 
